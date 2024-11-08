@@ -84,14 +84,20 @@ class DroneController(Node):
         self.local_pos_pub.publish(self.pose)
 
     def image_callback(self, msg):
-        # Обработка изображения от камеры
+        # Обработка изображения от камеры и отображение
         self.current_image = self.bridge.imgmsg_to_cv2(msg, "bgr8")
+        cv2.imshow("Original Image", self.current_image)
+        hsv = cv2.cvtColor(self.current_image, cv2.COLOR_BGR2HSV)
+        mask = cv2.inRange(hsv, np.array([0, 0, 0]), np.array([180, 255, 50]))
+        cv2.imshow("Mask", mask)
+        cv2.waitKey(1)
 
     def detect_track(self, image):
-        # Обнаружение черной трассы
-        hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        # Улучшение контраста и яркости изображения
+        adjusted = cv2.convertScaleAbs(image, alpha=1.2, beta=30)
+        hsv = cv2.cvtColor(adjusted, cv2.COLOR_BGR2HSV)
         lower_black = np.array([0, 0, 0])
-        upper_black = np.array([180, 255, 30])
+        upper_black = np.array([180, 255, 50])
         mask = cv2.inRange(hsv, lower_black, upper_black)
         contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
         return contours
