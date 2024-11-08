@@ -45,6 +45,22 @@ class DroneController(Node):
     def state_cb(self, msg):
         self.current_state = msg
 
+    def set_offboard_mode(self):
+        # Установка режима OFFBOARD
+        if self.set_mode_client.wait_for_service(timeout_sec=1.0):
+            req = SetMode.Request()
+            req.custom_mode = 'OFFBOARD'
+            future = self.set_mode_client.call_async(req)
+            future.add_done_callback(lambda f: self.get_logger().info("OFFBOARD mode set" if f.result().mode_sent else "Failed to set OFFBOARD mode"))
+
+    def arm_drone(self):
+        # Вооружение дрона
+        if self.arming_client.wait_for_service(timeout_sec=1.0):
+            req = CommandBool.Request()
+            req.value = True
+            future = self.arming_client.call_async(req)
+            future.add_done_callback(lambda f: self.get_logger().info("Drone armed" if f.result().success else "Failed to arm drone"))
+
     def fly(self):
         # Управление полетом и проверка состояния
         if not self.current_state.connected:
