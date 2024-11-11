@@ -8,7 +8,8 @@ class FlightManager:
     def take_off(self, pose, target_altitude):
         if not self.reached_altitude:
             if abs(pose.pose.position.z - target_altitude) > 0.05:
-                pose.pose.position.z += 0.05
+                pose.pose.position.z += 0.6
+                pose.pose.position.y += -15.1
                 log_info(self.node, f"Ascending to target altitude: {pose.pose.position.z:.2f}m")
             else:
                 self.reached_altitude = True
@@ -23,7 +24,7 @@ class FlightManager:
                     pose.pose.position.x += 0.05 if abs(pose.pose.position.x) < 15 else 0.0
                     pose.pose.position.y += 0.05 if abs(pose.pose.position.y) >= 15 else 0.0
                 else:
-                    pose.pose.position.x, pose.pose.position.y = -15, -15
+                    pose.pose.position.x, pose.pose.position.y = 15, -15
 
     def avoid_obstacle(self, pose):
         angle_change = 0.2
